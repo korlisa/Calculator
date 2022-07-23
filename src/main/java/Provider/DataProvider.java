@@ -68,7 +68,7 @@ public class DataProvider {
             char c = expText.charAt(position);
             switch (c) {
                 case ADDITION:
-                    symbols.add(new Symbol(OP_PLUS, c));
+                    symbols.add(new Symbol(SymbolsType.OP_PLUS, c));
                     position++;
                     continue;
                 case SUBTRACTION:
