@@ -2,6 +2,8 @@ package Provider;
 
 import ru.Calculator.Constants.SymbolsType;
 import static ru.Calculator.Constants.Constants.*;
+import static ru.Calculator.Constants.SymbolsType.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,7 +68,7 @@ public class DataProvider {
             char c = expText.charAt(position);
             switch (c) {
                 case ADDITION:
-                    symbols.add(new Symbol(SymbolsType.OP_PLUS, c));
+                    symbols.add(new Symbol(OP_PLUS, c));
                     position++;
                     continue;
                 case SUBTRACTION:
@@ -125,9 +127,27 @@ public class DataProvider {
         while (true) {
             Symbol symbol = symbols.next();
             switch (symbol.type) {
-                case OP_PLUS -> value += multdiv(symbols);
-                case OP_MINUS -> value -= multdiv(symbols);
-                default -> {
+                case OP_PLUS:
+                    value += multdiv(symbols);
+                    symbol = symbols.next();
+                    if (symbol.type == SymbolsType.OP_PLUS || symbol.type == SymbolsType.OP_DIV ||
+                    symbol.type == SymbolsType.OP_MUL) {
+                        throw new RuntimeException("You can INPUT expressions only like this: " +
+                                "a+b-c, a-b+c, a*b-c, a/b*c "
+                                + "Unexpected symbol: " + symbol.value
+                                + " at position: " + symbols.getPosition());
+                    }
+                case OP_MINUS:
+                    value -= multdiv(symbols);
+                    symbol = symbols.next();
+                    if (symbol.type == SymbolsType.OP_MINUS || symbol.type == SymbolsType.OP_DIV ||
+                            symbol.type == SymbolsType.OP_MUL) {
+                        throw new RuntimeException("You can INPUT expressions only like this: " +
+                                "a+b-c, a-b+c, a*b-c, a/b*c " +
+                                "Unexpected symbol: " + symbol.value
+                                + " at position: " + symbols.getPosition());
+                    }
+                default: {
                     symbols.back();
                     return value;
                 }
@@ -142,9 +162,27 @@ public class DataProvider {
             while (true) {
                 Symbol symbol = symbols.next();
                 switch (symbol.type) {
-                    case OP_MUL -> value *= factor(symbols);
-                    case OP_DIV -> value /= factor(symbols);
-                    default -> {
+                    case OP_MUL:
+                        value *= factor(symbols);
+                        symbol = symbols.next();
+                        if (symbol.type == SymbolsType.OP_MUL || symbol.type == OP_PLUS ||
+                                symbol.type == OP_DIV) {
+                            throw new RuntimeException("You can INPUT expressions only like this: " +
+                                    "a+b-c, a-b+c, a*b-c, a/b*c " +
+                                    "Unexpected symbol: " + symbol.value
+                                    + " at position: " + symbols.getPosition());
+                        }
+                    case OP_DIV:
+                        value /= factor(symbols);
+                        symbol = symbols.next();
+                        if (symbol.type == SymbolsType.OP_DIV || symbol.type == OP_PLUS ||
+                                symbol.type == OP_MINUS) {
+                            throw new RuntimeException("You can INPUT expressions only like this: " +
+                                    "a+b-c, a-b+c, a*b-c, a/b*c " +
+                                    "Unexpected symbol: " + symbol.value
+                                    + " at position: " + symbols.getPosition());
+                        }
+                    default: {
                         symbols.back();
                         return value;
                     }
@@ -161,7 +199,9 @@ public class DataProvider {
         }
         throw new RuntimeException("1Unexpected symbol: " + symbol.value
                 + "at position: " + symbols.getPosition());
+
     }
+
 
 }
 
